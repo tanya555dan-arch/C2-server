@@ -14,6 +14,7 @@ from flask import Flask, render_template, request, jsonify, send_file, redirect,
 from flask_socketio import SocketIO, emit
 import sqlite3
 import os
+import os
 import datetime
 import uuid
 import base64
@@ -366,4 +367,7 @@ if __name__ == '__main__':
     Press Ctrl+C to stop
     """)
 
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    # Check if running in production (Railway, etc.)
+    debug_mode = os.getenv('DEBUG', 'false').lower() == 'true'
+
+    socketio.run(app, host='0.0.0.0', port=5000, debug=debug_mode)
